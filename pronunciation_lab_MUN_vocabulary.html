@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pronunciation Lab — MUN Vocabulary</title>
+<style>
+  :root{
+    --navy:#14213d; --blue:#2f6fed; --light:#f5f7fb; --white:#fff;
+    --green:#198754; --gold:#f4b942; --text:#202735; --muted:#687386;
+    --border:#dfe4ec; --shadow:0 10px 30px rgba(20,33,61,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--light);color:var(--text)}
+  header{background:linear-gradient(135deg,var(--navy),#234b8d);color:white;padding:34px 20px}
+  .wrap{max-width:1050px;margin:auto}
+  header h1{margin:0 0 7px;font-size:clamp(28px,5vw,44px)}
+  header p{margin:0;color:#dfe9ff;font-size:17px}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+  button{border:0;border-radius:12px;padding:12px 17px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+  button:hover{transform:translateY(-1px)}
+  .tab{background:white;color:var(--navy);border:1px solid var(--border)}
+  .tab.active{background:var(--blue);color:white;border-color:var(--blue)}
+  .panel{background:white;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:28px}
+  .hidden{display:none!important}
+  .word-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:24px}
+  .word-btn{background:#f0f3f8;color:var(--navy);border:1px solid var(--border);text-align:left}
+  .word-btn.active{background:#e7efff;border-color:#a9c4ff;color:#174ba8}
+  .word-card{text-align:center;padding:20px 10px}
+  .word{font-size:clamp(38px,8vw,68px);font-weight:850;letter-spacing:-1px;margin:8px 0}
+  .ipa{font-family:Georgia,serif;font-size:23px;color:var(--muted);margin:8px}
+  .stress{display:inline-block;background:#fff4d8;color:#795600;border-radius:999px;padding:7px 12px;font-size:14px;font-weight:750}
+  .example{margin:22px auto;max-width:720px;background:#f7f9fc;border-left:4px solid var(--blue);padding:17px 20px;text-align:left;border-radius:8px;font-size:18px;line-height:1.5}
+  .controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:20px 0}
+  .primary{background:var(--blue);color:white}.secondary{background:#edf1f7;color:var(--navy)}
+  .record{background:#d9485f;color:white}.stop{background:#555;color:white}
+  .status{min-height:28px;text-align:center;color:var(--muted);font-weight:650}
+  audio{width:min(100%,520px);margin:8px auto;display:block}
+  .selfcheck{border-top:1px solid var(--border);margin-top:25px;padding-top:22px;text-align:center}
+  .check-buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .good{background:#e8f7ef;color:#11653b}.again{background:#fff1f1;color:#a51f35}
+  .progress{height:10px;background:#e7ebf2;border-radius:99px;overflow:hidden;margin:14px 0}
+  .bar{height:100%;background:var(--blue);width:0%;transition:.3s}
+  .quiz-question{text-align:center}
+  .quiz-word{font-size:48px;font-weight:850;margin:20px}
+  .quiz-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;max-width:700px;margin:20px auto}
+  .option{background:#f3f5f9;border:1px solid var(--border);text-align:left}
+  .option.correct{background:#e8f7ef;border-color:#72c596}.option.wrong{background:#fff0f0;border-color:#e09aa6}
+  .feedback{text-align:center;min-height:28px;font-weight:750}
+  .score{text-align:center;font-size:18px;font-weight:800}
+  .instructions{line-height:1.65;color:#4e596b}
+  footer{text-align:center;color:var(--muted);padding:30px 10px;font-size:13px}
+  @media(max-width:600px){.panel{padding:18px}.word-nav{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🇺🇸 Pronunciation Lab</h1>
+    <p>MUN Vocabulary · General American English</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-tab="practice">Practice</button>
+    <button class="tab" data-tab="quiz">Pronunciation Challenge</button>
+    <button class="tab" data-tab="how">How to practise</button>
+  </div>
+
+  <section id="practice" class="panel">
+    <div class="word-nav" id="wordNav"></div>
+    <div class="word-card">
+      <div class="word" id="word"></div>
+      <div class="ipa" id="ipa"></div>
+      <div class="stress" id="stress"></div>
+      <div class="example" id="example"></div>
+
+      <div class="controls">
+        <button class="primary" id="listen">🔊 Listen</button>
+        <button class="record" id="record">🎙️ Record yourself</button>
+        <button class="stop hidden" id="stop">⏹ Stop</button>
+      </div>
+      <div class="status" id="status">Listen first, then record yourself.</div>
+      <audio id="recording" controls class="hidden"></audio>
+
+      <div class="selfcheck">
+        <strong>How did you do?</strong>
+        <div class="check-buttons">
+          <button class="good" id="good">✓ I can say it</button>
+          <button class="again" id="again">↻ I need more practice</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="panel hidden">
+    <div class="score" id="score"></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="quiz-question">
+      <p>Which pronunciation matches the word?</p>
+      <div class="quiz-word" id="quizWord"></div>
+      <button class="secondary" id="quizListen">🔊 Hear the word</button>
+      <div class="quiz-options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="primary hidden" id="nextQuiz">Next word →</button>
+    </div>
+  </section>
+
+  <section id="how" class="panel hidden">
+    <h2>How to practise</h2>
+    <div class="instructions">
+      <ol>
+        <li>Choose a word from the list.</li>
+        <li>Press <strong>Listen</strong> and pay attention to the stress and rhythm.</li>
+        <li>Press <strong>Record yourself</strong>. Your browser may ask for permission to use the microphone.</li>
+        <li>Listen to your recording and compare it with the model.</li>
+        <li>Repeat the word until you feel comfortable saying it.</li>
+        <li>Use <strong>Pronunciation Challenge</strong> when you are ready to test yourself.</li>
+      </ol>
+      <p><strong>Tip:</strong> Don't worry about sounding exactly like an American speaker. Focus first on the stressed syllable, the main vowel sounds, and saying the whole word clearly.</p>
+    </div>
+  </section>
+</main>
+
+<footer>Pronunciation Lab · MUN Vocabulary · General American English</footer>
+
+<script>
+const words = [
+ {w:"Distinguished", ipa:"/dɪˈstɪŋɡwɪʃt/", stress:"Stress the second syllable", ex:"Distinguished delegates, good morning."},
+ {w:"Excellencies", ipa:"/ˈɛksələnsiz/", stress:"Stress the first syllable", ex:"Honorable Excellencies, thank you for your statement."},
+ {w:"Fellow", ipa:"/ˈfɛloʊ/", stress:"Stress the first syllable", ex:"I would like to thank my fellow delegates."},
+ {w:"Committee", ipa:"/kəˈmɪti/", stress:"Stress the second syllable", ex:"The committee will now discuss the proposal."},
+ {w:"Posits", ipa:"/ˈpɑzɪts/", stress:"Stress the first syllable", ex:"The resolution posits that international cooperation is necessary."},
+ {w:"Asserts", ipa:"/əˈsɝts/", stress:"Stress the second syllable", ex:"The document asserts that immediate action is needed."},
+ {w:"Paramount", ipa:"/ˈpærəmaʊnt/", stress:"Stress the first syllable", ex:"The safety of civilians is of paramount importance."},
+ {w:"Acknowledges", ipa:"/əkˈnɑlɪdʒɪz/", stress:"Stress the second syllable", ex:"The committee acknowledges the concerns raised by delegates."},
+ {w:"Urges", ipa:"/ˈɝdʒɪz/", stress:"Stress the first syllable", ex:"The resolution urges all countries to cooperate."},
+ {w:"Mitigate", ipa:"/ˈmɪtəɡeɪt/", stress:"Stress the first syllable", ex:"The proposal aims to mitigate the effects of the crisis."},
+ {w:"Dissent", ipa:"/dɪˈsɛnt/", stress:"Stress the second syllable", ex:"Several delegates expressed dissent during the discussion."},
+ {w:"Caution", ipa:"/ˈkɔʃən/", stress:"Stress the first syllable", ex:"The chair urged caution when considering the proposal."}
+];
+
+let current=0, recorder=null, chunks=[], stream=null, goodCount=0, quizIndex=0, quizScore=0, quizAnswered=false;
+const $=id=>document.getElementById(id);
+
+function renderWord(){
+ const x=words[current];
+ $("word").textContent=x.w; $("ipa").textContent=x.ipa; $("stress").textContent=x.stress; $("example").textContent=x.ex;
+ document.querySelectorAll(".word-btn").forEach((b,i)=>b.classList.toggle("active",i===current));
+ $("status").textContent="Listen first, then record yourself.";
+ $("recording").classList.add("hidden"); $("recording").removeAttribute("src");
+}
+function buildNav(){
+ $("wordNav").innerHTML="";
+ words.forEach((x,i)=>{
+  const b=document.createElement("button"); b.className="word-btn"; b.textContent=x.w;
+  b.onclick=()=>{current=i;renderWord()}; $("wordNav").appendChild(b);
+ });
+}
+function speak(text){
+ if(!("speechSynthesis" in window)){ $("status").textContent="Speech synthesis is not available in this browser."; return; }
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang="en-US"; u.rate=.82; u.pitch=1;
+ const voices=speechSynthesis.getVoices();
+ const us=voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("en-us"));
+ if(us) u.voice=us;
+ speechSynthesis.speak(u);
+}
+$("listen").onclick=()=>speak(words[current].w);
+$("record").onclick=async()=>{
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  chunks=[]; recorder=new MediaRecorder(stream);
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  recorder.onstop=()=>{
+   const blob=new Blob(chunks,{type:"audio/webm"});
+   $("recording").src=URL.createObjectURL(blob);
+   $("recording").classList.remove("hidden");
+   $("status").textContent="Now listen to your recording and compare it with the model.";
+   stream.getTracks().forEach(t=>t.stop());
+  };
+  recorder.start(); $("record").classList.add("hidden"); $("stop").classList.remove("hidden");
+  $("status").textContent="Recording… say the word clearly.";
+ }catch(e){$("status").textContent="Microphone access was not available. You can still use Listen to practise."}
+};
+$("stop").onclick=()=>{if(recorder && recorder.state!=="inactive")recorder.stop();$("record").classList.remove("hidden");$("stop").classList.add("hidden")};
+$("good").onclick=()=>{goodCount++;$("status").textContent="Great! Move on to the next word when you're ready.";};
+$("again").onclick=()=>{$("status").textContent="That's okay! Listen again and try once more.";};
+
+document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{
+ document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+ ["practice","quiz","how"].forEach(id=>$(id).classList.toggle("hidden",id!==btn.dataset.tab));
+ if(btn.dataset.tab==="quiz")startQuiz();
+});
+
+function startQuiz(){
+ quizIndex=0;quizScore=0;showQuiz();
+}
+function showQuiz(){
+ if(quizIndex>=words.length){
+  $("quizWord").textContent="🎉 Finished!";
+  $("options").innerHTML="";
+  $("feedback").textContent=`You scored ${quizScore} / ${words.length}.`;
+  $("score").textContent="Pronunciation Challenge complete!";
+  $("bar").style.width="100%";
+  $("quizListen").classList.add("hidden"); $("nextQuiz").classList.add("hidden");
+  return;
+ }
+ quizAnswered=false;
+ const x=words[quizIndex];
+ $("quizWord").textContent=x.w;
+ $("score").textContent=`Word ${quizIndex+1} of ${words.length} · Score: ${quizScore}`;
+ $("bar").style.width=(quizIndex/words.length*100)+"%";
+ $("feedback").textContent="";
+ $("nextQuiz").classList.add("hidden"); $("quizListen").classList.remove("hidden");
+ const distractors=words.filter((_,i)=>i!==quizIndex).sort(()=>Math.random()-.5).slice(0,2).map(x=>x.ipa);
+ const opts=[x.ipa,...distractors].sort(()=>Math.random()-.5);
+ $("options").innerHTML="";
+ opts.forEach(ipa=>{
+  const b=document.createElement("button");b.className="option";b.textContent=ipa;
+  b.onclick=()=>{
+   if(quizAnswered)return;quizAnswered=true;
+   if(ipa===x.ipa){quizScore++;b.classList.add("correct");$("feedback").textContent="✓ Correct!";}
+   else{b.classList.add("wrong");$("feedback").textContent=`Not quite. The correct pronunciation is ${x.ipa}`;[...$("options").children].forEach(el=>{if(el.textContent===x.ipa)el.classList.add("correct")})}
+   $("nextQuiz").classList.remove("hidden");
+  }; $("options").appendChild(b);
+ });
+}
+$("quizListen").onclick=()=>speak(words[quizIndex]?.w||"");
+$("nextQuiz").onclick=()=>{quizIndex++;showQuiz()};
+
+buildNav();renderWord();
+if("speechSynthesis" in window) speechSynthesis.getVoices();
+</script>
+</body>
+</html>
